@@ -1,35 +1,60 @@
 package de.unistuttgart.iste.sqa.pse.sheet10.homework.warehouse;
 
 import de.unistuttgart.iste.sqa.pse.sheet10.homework.warehouse.items.StationeryItem;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Represents a buffer for temporary storage of items.
  *
- * @author your name
+ * @author Marvin Spiegel
  */
 public final class Buffer {
 
-	// TODO add data structure for exercise 1f here.
+	private Queue<StationeryItem> itemQueue;
 
-	// TODO add documentation here
+	/*@
+	@ ensures itemQueue != null;
+	@*/
+	/**
+	 * Creates a new buffer.
+	 */
 	public Buffer() {
-		// TODO initialize data structure for exercise 1f here.
+		itemQueue = new LinkedList<>();
 	}
 
-	// TODO add documentation here
+	/*@
+	@ requires stationeryItem != null;
+	@ ensures itemQueue.size() == \old(itemQueue.size()) + 1;
+	@*/
+	/**
+	 * Adds an item to the buffer.
+	 */
 	public void bufferItem(final StationeryItem stationeryItem) {
-		// TODO implement exercise 1g here.
+		itemQueue.add(stationeryItem);
 	}
 
-	// TODO add documentation here
+	/*@
+	@ requires !isEmpty();
+	@ ensures \result != null;
+	@*/
+	/**
+	 * Returns the next item in the buffer.
+	 */
 	public StationeryItem releaseItem() {
-		// TODO implement exercise 1g here.
-		return null; // TODO delete this line if necessary.
+		if (isEmpty()) {
+			throw new IllegalStateException("Buffer is empty. Cannot release item.");
+		}
+		return itemQueue.poll();
 	}
 
-	// TODO add documentation here
+	/*@
+	@ ensures \result == itemQueue.isEmpty();
+	@*/
+	/**
+	 * Returns true if the buffer is empty.
+	 */
 	public /*@ pure @*/ boolean isEmpty() {
-		// TODO implement exercise 1g here.
-		return false; // TODO delete this line if necessary.
+		return itemQueue.isEmpty();
 	}
 }

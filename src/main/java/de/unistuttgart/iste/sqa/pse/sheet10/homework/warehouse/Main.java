@@ -2,6 +2,7 @@ package de.unistuttgart.iste.sqa.pse.sheet10.homework.warehouse;
 
 import de.unistuttgart.iste.sqa.pse.sheet10.homework.warehouse.items.Pen;
 import de.unistuttgart.iste.sqa.pse.sheet10.homework.warehouse.items.Ruler;
+import de.unistuttgart.iste.sqa.pse.sheet10.homework.warehouse.items.Compass;
 import de.unistuttgart.iste.sqa.pse.sheet10.homework.warehouse.items.StationeryItem;
 import java.util.Optional;
 
@@ -24,9 +25,11 @@ public class Main {
 		StationeryItem glitterPen = new Pen(new Identifier(), "Very glittery Pen");
 		StationeryItem gelPen = new Pen(new Identifier(), "Pen with gel");
 		StationeryItem ruler = new Ruler(new Identifier(), "Slightly crooked Ruler");
+		StationeryItem bonusItem = new Compass(new Identifier(), "Bonus Item");
 
 		Customer missLee = new Customer("Annabel Lee");
 		Customer misterPoe = new Customer("Edgar Allan Poe");
+		Customer mrSmith = new Customer("John Smith");
 
 		// add incoming stationary item to warehouse
 		mailOrderCompany.storeInStorageRack(gelPen);

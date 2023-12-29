@@ -2,12 +2,14 @@ package de.unistuttgart.iste.sqa.pse.sheet10.homework.warehouse;
 
 import de.unistuttgart.iste.sqa.pse.sheet10.homework.warehouse.items.StationeryItem;
 import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a warehouse that can hold a fixed number of items.
  * The number of holdable items is defined by the capacity of the storage rack.
  *
- * @author your name
+ * @author Marvin Spiegel, Ismail Ratni
  */
 public final class StorageRack {
 	// @ private instance invariant capacity > 0;
@@ -16,13 +18,17 @@ public final class StorageRack {
 
 	private final int capacity;
 	private int numberOfItems;
-	// TODO: Add data structures for exercises 1a and 1c here.
+	private Optional<StationeryItem>[] items; //Array of Optional<StationeryItem> because we want to be able to store null values
+											  // and array because we want to be able to access the items by index and fixed size
+	private Map<Identifier, Integer> identifierToCompartmentMap;
 
 	/*@
 	@ requires capacity > 0;
+	@ requires capacity < Integer.MAX_VALUE;
 	@ ensures this.capacity == capacity;
 	@ ensures numberOfItems == 0;
-	@ TODO add missing pre- and postconditions here or in the JavaDoc.
+	@ ensures items != null;
+	@ ensures (\forall int i; 0 <= i && i < capacity; items[i] == Optional.empty());
 	@*/
 	/**
 	 * Creates a new storage rack with the given capacity.
@@ -37,29 +43,130 @@ public final class StorageRack {
 		}
 		this.capacity = capacity;
 		numberOfItems = 0;
-		// TODO initialize data structures for exercises 1a and 1c here.
+
+		// Initialize data structures
+		items = new Optional[capacity];
+		identifierToCompartmentMap = new HashMap<>();
+
+		for (int i = 0; i < capacity; i++) {
+			items[i] = Optional.empty();
+		}
 	}
 
-	// TODO add documentation here.
-	public void addItem(final StationeryItem stationeryItem) {
-		// TODO implement exercises 1b and 1d here.
+	/*@
+	@ requires stationeryItem != null;
+	@ requires numberOfItems < capacity;
+	@ ensures numberOfItems == \old(numberOfItems) + 1;
+	 */
+	/**
+	 * Adds a new item to the storage rack.
+	 *
+	 * @param stationeryItem The item to add.
+	 *
+	 * @throws IllegalArgumentException If there is no empty compartment.
+	 */
+	public void addItem(final StationeryItem stationeryItem, final Identifier identifier) {
+		assert stationeryItem != null : "stationeryItem must not be null";
+		assert identifier != null : "identifier must not be null";
+		int firstEmptyCompartment = findFirstEmptyCompartment();
+
+		// Check if there is an available compartment
+		if (firstEmptyCompartment != -1) {
+			items[firstEmptyCompartment] = Optional.of(stationeryItem);
+			identifierToCompartmentMap.put(identifier, firstEmptyCompartment);
+			numberOfItems++;
+		} else {
+			// Handle the case where there are no available compartments using an exception
+			throw new IllegalArgumentException("No available compartments. Cannot add item.");
+		}
 	}
 
-	// TODO add documentation here.
+	/*@
+	  @ ensures numberOfItems == \old(numberOfItems) + 1;
+	 @*/
+	/**
+	 * Finds the first empty compartment in the storage rack.
+	 * @return The index of the first empty compartment or -1 if there is no empty compartment.
+	 */
+	private int findFirstEmptyCompartment() {
+		for (int i = 0; i < capacity; i++) {
+			if (!items[i].isPresent()) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/*@
+	@ requires compartmentNumber >= 0 && compartmentNumber < capacity;
+	@ ensures numberOfItems == \old(numberOfItems) - 1;
+	@*/
+	/**
+	 * Removes the item from the given compartment.
+	 * @param compartmentNumber The number of the compartment to remove the item from.
+	 */
 	public void removeItem(final int compartmentNumber) {
-		// TODO implement exercises 1b and 1d here.
+		assert compartmentNumber >= 0 && compartmentNumber < capacity : "Invalid compartment number";
+
+		// Check if the compartment contains an item
+		if (items[compartmentNumber].isPresent()) {
+			Identifier removedIdentifier = getIdentifierForCompartment(compartmentNumber);
+			items[compartmentNumber] = Optional.empty();
+			identifierToCompartmentMap.remove(removedIdentifier);
+			numberOfItems--;
+		}
 	}
 
-	// TODO add documentation here.
+	/*@
+	@ requires compartmentNumber >= 0 && compartmentNumber < capacity;
+	@ ensures \result != null;
+	 */
+	/**
+	 * Returns the identifier for the given compartment.
+	 * @param compartmentNumber The number of the compartment to get the identifier from.
+	 * @throws IllegalArgumentException If there is no mapping for the specified compartment.
+	 */
+	private Identifier getIdentifierForCompartment(int compartmentNumber) {
+		for (Map.Entry<Identifier, Integer> entry : identifierToCompartmentMap.entrySet()) {
+			if (entry.getValue() == compartmentNumber) {
+				return entry.getKey();
+			}
+		}
+		throw new IllegalArgumentException("No mapping found for the specified compartment.");
+	}
+
+
+	/*@
+	@ requires compartmentNumber >= 0 && compartmentNumber < capacity;
+	@ ensures \result != null;
+	@*/
+	/**
+	 * Returns the item in the given compartment.
+	 * @param compartmentNumber The number of the compartment to get the item from.
+	 */
 	public /*@ pure @*/ Optional<StationeryItem> getItem(final int compartmentNumber) {
-		// TODO implement exercise 1b here.
-		return Optional.empty(); // TODO delete this line if necessary.
+		assert compartmentNumber >= 0 && compartmentNumber < capacity : "Invalid compartment number";
+
+		// Return the item in the specified compartment, if present
+		return items[compartmentNumber];
 	}
 
-	// TODO add documentation here.
+	/*@
+	@ requires identifier != null;
+	@ ensures \result != null;
+	@*/
+	/**
+	 * Returns the compartment number for the given identifier.
+	 * @param identifier The identifier to get the compartment number for.
+	 */
 	public /*@ pure @*/ Optional<Integer> getCompartmentNumberOf(final Identifier identifier) {
-		// TODO implement exercise 1d here.
-		return Optional.empty(); // TODO delete this line if necessary.
+		assert identifier != null : "identifier must not be null";
+
+		if (identifierToCompartmentMap.containsKey(identifier)) {
+			return Optional.of(identifierToCompartmentMap.get(identifier));
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	/*@
