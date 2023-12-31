@@ -7,7 +7,7 @@ import java.util.Queue;
 /**
  * Represents a buffer for temporary storage of items.
  *
- * @author Marvin Spiegel
+ * @author Marvin Spiegel, Ismail Ratni
  */
 public final class Buffer {
 

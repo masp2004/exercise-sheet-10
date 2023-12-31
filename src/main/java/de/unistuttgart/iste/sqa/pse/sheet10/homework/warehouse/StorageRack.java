@@ -18,12 +18,10 @@ public final class StorageRack {
 
 	private final int capacity;
 	private int numberOfItems;
-	private Optional<StationeryItem>[] items; //Array of Optional<StationeryItem> because we want to be able to store null values
-											  // and array because we want to be able to access the items by index and fixed size
+	private Optional<StationeryItem>[] items;
 	private Map<Identifier, Integer> identifierToCompartmentMap;
 
 	/*@
-	@ requires capacity > 0;
 	@ requires capacity < Integer.MAX_VALUE;
 	@ ensures this.capacity == capacity;
 	@ ensures numberOfItems == 0;
@@ -44,7 +42,6 @@ public final class StorageRack {
 		this.capacity = capacity;
 		numberOfItems = 0;
 
-		// Initialize data structures
 		items = new Optional[capacity];
 		identifierToCompartmentMap = new HashMap<>();
 
@@ -62,21 +59,20 @@ public final class StorageRack {
 	 * Adds a new item to the storage rack.
 	 *
 	 * @param stationeryItem The item to add.
-	 *
+	 * @param identifier The identifier for the item.
 	 * @throws IllegalArgumentException If there is no empty compartment.
 	 */
 	public void addItem(final StationeryItem stationeryItem, final Identifier identifier) {
 		assert stationeryItem != null : "stationeryItem must not be null";
 		assert identifier != null : "identifier must not be null";
+
 		int firstEmptyCompartment = findFirstEmptyCompartment();
 
-		// Check if there is an available compartment
 		if (firstEmptyCompartment != -1) {
 			items[firstEmptyCompartment] = Optional.of(stationeryItem);
 			identifierToCompartmentMap.put(identifier, firstEmptyCompartment);
 			numberOfItems++;
 		} else {
-			// Handle the case where there are no available compartments using an exception
 			throw new IllegalArgumentException("No available compartments. Cannot add item.");
 		}
 	}
@@ -90,7 +86,7 @@ public final class StorageRack {
 	 */
 	private int findFirstEmptyCompartment() {
 		for (int i = 0; i < capacity; i++) {
-			if (!items[i].isPresent()) {
+			if (items[i].isEmpty()) {
 				return i;
 			}
 		}
@@ -98,7 +94,6 @@ public final class StorageRack {
 	}
 
 	/*@
-	@ requires compartmentNumber >= 0 && compartmentNumber < capacity;
 	@ ensures numberOfItems == \old(numberOfItems) - 1;
 	@*/
 	/**
@@ -108,7 +103,6 @@ public final class StorageRack {
 	public void removeItem(final int compartmentNumber) {
 		assert compartmentNumber >= 0 && compartmentNumber < capacity : "Invalid compartment number";
 
-		// Check if the compartment contains an item
 		if (items[compartmentNumber].isPresent()) {
 			Identifier removedIdentifier = getIdentifierForCompartment(compartmentNumber);
 			items[compartmentNumber] = Optional.empty();
@@ -118,7 +112,6 @@ public final class StorageRack {
 	}
 
 	/*@
-	@ requires compartmentNumber >= 0 && compartmentNumber < capacity;
 	@ ensures \result != null;
 	 */
 	/**
@@ -137,7 +130,6 @@ public final class StorageRack {
 
 
 	/*@
-	@ requires compartmentNumber >= 0 && compartmentNumber < capacity;
 	@ ensures \result != null;
 	@*/
 	/**
